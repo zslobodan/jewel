@@ -14,3 +14,4 @@ plugins {
 include("bootstrap")
 include("util")
 include("ui")
+include("laf")

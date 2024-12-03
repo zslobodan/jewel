@@ -1,0 +1,7 @@
+Hey! Quick note about this Look and Feel - I got a ton of inspiration from [FlatLaf](https://www.formdev.com/flatlaf/). While I started building this from scratch, I realized the FlatLaf folks had already done an amazing job. No point reinventing the wheel, right?
+
+I'm planning to create my own lightweight version since Jewel Code Editor won't need all the bells and whistles that FlatLaf comes with. But seriously, big shoutout to their team - they built something really awesome.
+
+Just starting to work on this - and while FlatLaf serves as inspiration (code, logic etc.), I'm writing all the code myself from the ground up. The plan is to take advantage of Java 21 features and add my own tweaks to better fit what I need.
+
+Definitely going to support their work when I get some extra money!

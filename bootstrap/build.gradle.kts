@@ -4,8 +4,9 @@ plugins {
 }
 
 dependencies {
-	implementation(project(":util"))
 	implementation(project(":ui"))
+	implementation(project(":laf"))
+	implementation(project(":util"))
 }
 
 application {

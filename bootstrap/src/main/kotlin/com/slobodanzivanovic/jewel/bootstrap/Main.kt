@@ -16,6 +16,7 @@
 
 package com.slobodanzivanovic.jewel.bootstrap
 
+import com.slobodanzivanovic.jewel.laf.JewelDarkLaf
 import com.slobodanzivanovic.jewel.ui.EditorWindow
 import com.slobodanzivanovic.jewel.util.logging.Logger
 import com.slobodanzivanovic.jewel.util.system.SystemInfo
@@ -23,14 +24,23 @@ import java.awt.Dimension
 import java.io.IOException
 import javax.swing.JFrame
 import javax.swing.SwingUtilities
+import javax.swing.UIManager
+import javax.swing.UnsupportedLookAndFeelException
 
 /**
  * @author Slobodan Zivanovic
  */
 fun main() {
+
 	System.setProperty("sun.java2d.dpiaware", "true")
 	System.setProperty("sun.awt.noerasebackground", "true")
 	System.setProperty("swing.bufferPerWindow", "true")
+
+	try {
+		UIManager.setLookAndFeel(JewelDarkLaf())
+	} catch (laf: UnsupportedLookAndFeelException) {
+		laf.printStackTrace()
+	}
 
 	when {
 		SystemInfo.IS_MAC -> {

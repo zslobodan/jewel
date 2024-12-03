@@ -23,6 +23,7 @@ import java.awt.*;
  * @author Slobodan Zivanovic
  */
 public class EditorWindow extends JPanel {
+
 	private final JTextPane textPane;
 
 	public EditorWindow() {

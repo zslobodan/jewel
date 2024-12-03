@@ -28,6 +28,7 @@ import java.util.Objects;
  * @author Slobodan Zivanovic
  */
 public final class SystemInfo {
+
 	private static final SystemInfo INSTANCE = new SystemInfo();
 	private static final Logger logger;
 

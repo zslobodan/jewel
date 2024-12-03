@@ -40,6 +40,7 @@ import java.util.stream.Stream;
  * @author Slobodan Zivanovic
  */
 public class Logger {
+
 	private final Path logFilePath;
 	private final ReentrantLock lock = new ReentrantLock();
 	private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

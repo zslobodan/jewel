@@ -51,7 +51,7 @@ tasks.register<Exec>("packageApp") {
 		"--dest", osDir.absolutePath,
 		"--name", "Jewel",
 		"--main-jar", tasks.jar.get().archiveFileName.get(),
-		"--main-class", "com.slobodanzivanovic.jewel.bootstrap.Main",
+		"--main-class", "com.slobodanzivanovic.jewel.bootstrap.MainKt",
 		"--app-version", "1.0.0",
 		"--copyright", "Copyright (C) 2024 Slobodan Zivanovic",
 //		"--license-file", "${project.rootDir}/LICENSE",

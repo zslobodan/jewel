@@ -12,3 +12,5 @@ plugins {
 }
 
 include("bootstrap")
+include("util")
+include("ui")

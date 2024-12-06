@@ -18,10 +18,13 @@ package com.slobodanzivanovic.jewel.laf;
 
 import com.slobodanzivanovic.jewel.laf.util.JewelLafLoggerFactory;
 import com.slobodanzivanovic.jewel.util.logging.Logger;
+import com.slobodanzivanovic.jewel.util.system.SystemInfo;
 
+import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.basic.BasicLookAndFeel;
 import javax.swing.plaf.metal.MetalLookAndFeel;
-import java.util.Optional;
+import java.awt.*;
 
 /**
  * @author Slobodan Zivanovic
@@ -30,7 +33,7 @@ public abstract class JewelLaf extends BasicLookAndFeel {
 
 	private static final Logger LOGGER = JewelLafLoggerFactory.getLafLogger();
 
-	private final BasicLookAndFeel basicLookAndFeel = new MetalLookAndFeel();
+	private BasicLookAndFeel basicLookAndFeel;
 
 	@Override
 	public String getID() {
@@ -40,13 +43,11 @@ public abstract class JewelLaf extends BasicLookAndFeel {
 
 	@Override
 	public boolean isNativeLookAndFeel() {
-		LOGGER.debug("Checking if native LaF");
-		return true;
+		return false;
 	}
 
 	@Override
 	public boolean isSupportedLookAndFeel() {
-		LOGGER.debug("Checking if LaF is supported");
 		return true;
 	}
 
@@ -54,7 +55,7 @@ public abstract class JewelLaf extends BasicLookAndFeel {
 	public void initialize() {
 		LOGGER.info("Initializing " + getName() + " Look and Feel");
 		try {
-			basicLookAndFeel.initialize();
+			getBasicLookAndFeel().initialize();
 			super.initialize();
 			LOGGER.info("Successfully initialized " + getName());
 		} catch (Exception e) {
@@ -67,12 +68,65 @@ public abstract class JewelLaf extends BasicLookAndFeel {
 	public void uninitialize() {
 		LOGGER.info("Uninitialized " + getName() + " Look and Feel");
 		try {
-			Optional.of(basicLookAndFeel).ifPresent(BasicLookAndFeel::uninitialize);
+			if (basicLookAndFeel != null) {
+				basicLookAndFeel.uninitialize();
+			}
 			super.uninitialize();
 			LOGGER.info("Successfully uninitialized " + getName());
 		} catch (Exception e) {
 			LOGGER.error("Failed to uninitialize " + getName() + ": " + e.getMessage());
 			throw e;
+		}
+	}
+
+	private BasicLookAndFeel getBasicLookAndFeel() {
+		if (basicLookAndFeel == null) {
+			basicLookAndFeel = new MetalLookAndFeel();
+		}
+		return basicLookAndFeel;
+	}
+
+	@Override
+	public UIDefaults getDefaults() {
+		UIDefaults defaults = getBasicLookAndFeel().getDefaults();
+
+		initializeFonts(defaults);
+
+		return defaults;
+	}
+
+	private void initializeFonts(UIDefaults defaults) {
+		FontUIResource systemFont = null;
+
+		if (SystemInfo.IS_WINDOWS) {
+			Font windowsFont = (Font) Toolkit.getDefaultToolkit().getDesktopProperty("win.messagebox.font");
+			if (windowsFont != null) {
+				systemFont = new FontUIResource(windowsFont);
+			}
+		} else if (SystemInfo.IS_MAC) {
+			Font macFont = (Font) Toolkit.getDefaultToolkit().getDesktopProperty("apple.awt.application.font");
+			if (macFont != null) {
+				systemFont = new FontUIResource(macFont);
+			}
+		}
+
+		if (systemFont == null) {
+			systemFont = new FontUIResource("Dialog", Font.PLAIN, 12);
+		}
+
+		for (Object key : defaults.keySet()) {
+			if (key instanceof String && ((String) key).endsWith(".font")) {
+				Object value = defaults.get(key);
+				if (value instanceof Font) {
+					Font originalFont = (Font) value;
+					FontUIResource newFont = new FontUIResource(
+						systemFont.getFamily(),
+						originalFont.getStyle(),
+						originalFont.getSize()
+					);
+					defaults.put(key, newFont);
+				}
+			}
 		}
 	}
 }

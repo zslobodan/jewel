@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package com.slobodanzivanovic.jewel.laf;
+package com.slobodanzivanovic.jewel.laf.core.ui;
+
+import javax.swing.*;
+import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.basic.BasicLabelUI;
 
 /**
  * @author Slobodan Zivanovic
  */
-public final class JewelDarkLaf extends JewelLaf {
+public class JewelLabelUI extends BasicLabelUI {
 
-	@Override
-	public String getName() {
-		return "Jewel Dark";
-	}
+	private static ComponentUI instance;
 
-	@Override
-	public String getDescription() {
-		return "Jewel Dark Laf";
+	public static ComponentUI createUI(JComponent component) {
+		if (instance == null) {
+			instance = new JewelLabelUI();
+		}
+
+		return instance;
 	}
 }

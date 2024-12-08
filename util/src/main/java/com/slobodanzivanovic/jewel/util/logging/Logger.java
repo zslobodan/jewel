@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -108,6 +110,20 @@ public class Logger {
 	 */
 	public void error(String message) {
 		log(LogLevel.ERROR, message);
+	}
+
+	/**
+	 * Logs an error message with an exception.
+	 *
+	 * @param message   The error message to be logged
+	 * @param throwable The exception to be logged
+	 */
+	public void error(String message, Throwable throwable) {
+		log(LogLevel.ERROR, message + "\nException: " +
+			throwable.getClass().getName() + ": " + throwable.getMessage() + "\n" +
+			Arrays.stream(throwable.getStackTrace())
+				.map(StackTraceElement::toString)
+				.collect(Collectors.joining("\n")));
 	}
 
 	/**

@@ -16,7 +16,8 @@
 
 package com.slobodanzivanovic.jewel.bootstrap
 
-import com.slobodanzivanovic.jewel.laf.JewelDarkLaf
+import com.slobodanzivanovic.jewel.laf.core.JewelDarkLaf
+import com.slobodanzivanovic.jewel.laf.core.JewelLafManager
 import com.slobodanzivanovic.jewel.ui.EditorWindow
 import com.slobodanzivanovic.jewel.util.logging.Logger
 import com.slobodanzivanovic.jewel.util.system.SystemInfo
@@ -24,61 +25,21 @@ import java.awt.Dimension
 import java.io.IOException
 import javax.swing.JFrame
 import javax.swing.SwingUtilities
-import javax.swing.UIManager
-import javax.swing.UnsupportedLookAndFeelException
 
 /**
+ * Entry point
+ *
  * @author Slobodan Zivanovic
  */
 fun main() {
+	// Initialize LaF and set up all system properties defined in LaF
+	JewelLafManager.setup(JewelDarkLaf())
 
-	System.setProperty("sun.java2d.dpiaware", "true")
-	System.setProperty("sun.awt.noerasebackground", "true")
-	System.setProperty("swing.bufferPerWindow", "true")
-
-	try {
-		UIManager.setLookAndFeel(JewelDarkLaf())
-	} catch (laf: UnsupportedLookAndFeelException) {
-		laf.printStackTrace()
-	}
-
-	when {
-		SystemInfo.IS_MAC -> {
-			System.setProperty("apple.awt.application.name", "Jewel")
-			System.setProperty("apple.laf.useScreenMenuBar", "true")
-			System.setProperty("apple.awt.graphics.UseQuartz", "true")
-			System.setProperty("apple.awt.fileDialogForDirectories", "true")
-			System.setProperty("apple.awt.fullscreencapturealldisplays", "false")
-			System.setProperty("com.apple.mrj.application.live-resize", "false")
-			// NOTE: Don't enable Metal renderer as it might cause issues
-			System.setProperty("sun.java2d.opengl", "true")
-		}
-
-		SystemInfo.IS_WINDOWS -> {
-			// NOTE: D3D can sometimes cause issues, using OpenGL instead
-			System.setProperty("sun.java2d.opengl", "true")
-			System.setProperty("sun.java2d.ddforcevram", "true")
-			System.setProperty("sun.java2d.ddscale", "true")
-		}
-
-		SystemInfo.IS_LINUX -> {
-			System.setProperty("sun.java2d.opengl", "true")
-			System.setProperty("sun.java2d.pmoffscreen", "false")
-			System.setProperty("awt.useSystemAAFontSettings", "on")
-		}
-	}
-
-	System.setProperty("swing.aatext", "true")
-	System.setProperty("sun.java2d.uiScale.enabled", "true")
-	System.setProperty("javax.swing.rebaseCssSizeMap", "true")
-
-	val systemInfo = SystemInfo.getInstance()
-	systemInfo.logSystemInfo()
+	SystemInfo.getInstance().logSystemInfo()
 
 	SwingUtilities.invokeLater {
-		JFrame().apply {
+		JFrame("Jewel").apply {
 			createBufferStrategy(1)
-
 			add(EditorWindow())
 			defaultCloseOperation = JFrame.EXIT_ON_CLOSE
 			isResizable = true
@@ -95,16 +56,18 @@ fun main() {
 		logger.info("Application started")
 		logger.info("Max memory: ${Runtime.getRuntime().maxMemory() / 1024 / 1024}MB")
 
-		val sessionDirectory = logger.sessionDirectory
-		println("Session directory is: $sessionDirectory")
+		logger.sessionDirectory.also {
+			println("Session directory is: $it")
+		}
 
-		val logFilePath = logger.logFilePath
-		println("Log file is located at: $logFilePath")
+		logger.logFilePath.also {
+			println("Log file is located at: $it")
+		}
 
 		Runtime.getRuntime().addShutdownHook(Thread {
 			logger.info("Application shutting down")
 		})
 	} catch (e: IOException) {
-		System.err.println("Failed to initialize logger: " + e.message)
+		System.err.println("Failed to initialize logger: ${e.message}")
 	}
 }

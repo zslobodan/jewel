@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package com.slobodanzivanovic.jewel.laf;
+package com.slobodanzivanovic.jewel.laf.core;
 
 /**
  * @author Slobodan Zivanovic
  */
-public final class JewelLightLaf extends JewelLaf {
+public final class JewelDarkLaf extends JewelLaf {
 
 	@Override
 	public String getName() {
-		return "Jewel Light";
+		return "Jewel Dark";
 	}
 
 	@Override
 	public String getDescription() {
-		return "Jewel Light Laf";
+		return "Jewel Dark Laf";
 	}
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.slobodanzivanovic.jewel.laf.util;
+package com.slobodanzivanovic.jewel.laf.core.util;
 
 import com.slobodanzivanovic.jewel.util.logging.Logger;
 

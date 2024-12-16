@@ -17,6 +17,7 @@
 package com.slobodanzivanovic.jewel.bootstrap
 
 import com.slobodanzivanovic.jewel.coreui.EditorWindow
+import com.slobodanzivanovic.jewel.util.platform.PlatformInfo
 import java.awt.Dimension
 import javax.swing.JFrame
 import javax.swing.SwingUtilities
@@ -26,6 +27,27 @@ import javax.swing.WindowConstants
  * @author Slobodan Zivanovic
  */
 fun main() {
+
+	when {
+		PlatformInfo.IS_MAC -> {
+			println(PlatformInfo.getInstance().osName)
+		}
+
+		PlatformInfo.IS_WINDOWS -> {
+			println(PlatformInfo.getInstance().osName)
+		}
+
+		PlatformInfo.IS_LINUX -> {
+			println(PlatformInfo.getInstance().osName)
+		}
+	}
+
+	println(PlatformInfo.getInstance().javaMajorVersion)
+	println(PlatformInfo.getInstance().javaVersion)
+	println(PlatformInfo.getInstance().osVersion)
+	println(PlatformInfo.getInstance().osArch)
+	println(PlatformInfo.getInstance().isUnix)
+	println(PlatformInfo.getInstance().isAarch64)
 
 	SwingUtilities.invokeLater {
 		JFrame().apply {

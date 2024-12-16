@@ -1,0 +1,11 @@
+.gradle
+.kotlin
+build
+output
+bin
+.idea
+.vscode
+.DS_Store
+.project
+.settings
+.classpath

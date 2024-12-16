@@ -1,0 +1,7 @@
+[versions]
+kotlin = "2.0.21"
+jpackage = "1.6.0"
+
+[libraries]
+kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+jpackagePlugin = { module = "org.panteleyev:jpackage-gradle-plugin", version.ref = "jpackage" }

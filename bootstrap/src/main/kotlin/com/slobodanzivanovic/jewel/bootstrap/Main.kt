@@ -17,8 +17,12 @@
 package com.slobodanzivanovic.jewel.bootstrap
 
 import com.slobodanzivanovic.jewel.coreui.EditorWindow
+import com.slobodanzivanovic.jewel.util.logging.Logger
 import com.slobodanzivanovic.jewel.util.platform.PlatformInfo
 import java.awt.Dimension
+import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.swing.JFrame
 import javax.swing.SwingUtilities
 import javax.swing.WindowConstants
@@ -42,12 +46,7 @@ fun main() {
 		}
 	}
 
-	println(PlatformInfo.getInstance().javaMajorVersion)
-	println(PlatformInfo.getInstance().javaVersion)
-	println(PlatformInfo.getInstance().osVersion)
-	println(PlatformInfo.getInstance().osArch)
-	println(PlatformInfo.getInstance().isUnix)
-	println(PlatformInfo.getInstance().isAarch64)
+	PlatformInfo.getInstance().logSystemInfo()
 
 	SwingUtilities.invokeLater {
 		JFrame().apply {
@@ -61,5 +60,24 @@ fun main() {
 			setLocationRelativeTo(null)
 			isVisible = true
 		}
+	}
+
+	try {
+		val file = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"))
+		val logger = Logger(file)
+		logger.info("Application started")
+		logger.info("Max memory: ${Runtime.getRuntime().maxMemory() / 1024 / 1024}MB")
+
+		val sessionDirectory = logger.sessionDirectory
+		println("Session directory is: $sessionDirectory")
+
+		val logFilePath = logger.logFilePath
+		println("Log file is located at: $logFilePath")
+
+		Runtime.getRuntime().addShutdownHook(Thread {
+			logger.info("Application shutting down")
+		})
+	} catch (e: IOException) {
+		System.err.println("Failed to initialize logger: " + e.message)
 	}
 }

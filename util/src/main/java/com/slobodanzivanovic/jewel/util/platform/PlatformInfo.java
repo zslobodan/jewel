@@ -16,6 +16,9 @@
 
 package com.slobodanzivanovic.jewel.util.platform;
 
+import com.slobodanzivanovic.jewel.util.logging.Logger;
+
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -27,6 +30,7 @@ import java.util.Objects;
 public class PlatformInfo {
 
 	private static final PlatformInfo INSTANCE = new PlatformInfo();
+	private static final Logger LOGGER;
 
 	public static final boolean IS_WINDOWS;
 	public static final boolean IS_MAC;
@@ -40,6 +44,15 @@ public class PlatformInfo {
 	private final int javaMajorVersion;
 
 	static {
+		Logger tempLogger;
+		try {
+			tempLogger = new Logger("");
+		} catch (IOException e) {
+			System.err.println("Failed to initialize logger: " + e.getMessage());
+			tempLogger = null;
+		}
+		LOGGER = tempLogger;
+
 		String osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
 		IS_WINDOWS = osName.contains("win");
 		IS_MAC = osName.contains("mac");
@@ -192,5 +205,21 @@ public class PlatformInfo {
 	@Override
 	public int hashCode() {
 		return Objects.hash(osName, osVersion, osArch, osType, javaVersion, javaMajorVersion);
+	}
+
+	public void logSystemInfo() {
+		try {
+			Logger sysLogger = new Logger("platform-info");
+			sysLogger.info("System Information:");
+			sysLogger.info("OS Type: " + osType.getDisplayName());
+			sysLogger.info("OS Name: " + osName);
+			sysLogger.info("OS Version: " + osVersion);
+			sysLogger.info("OS Architecture: " + osArch);
+			sysLogger.info("Java Version: " + javaVersion);
+			sysLogger.info("Java Major Version: " + javaMajorVersion);
+			sysLogger.info("ARM64 Architecture: " + isAarch64());
+		} catch (IOException e) {
+			LOGGER.error("Failed to log system information: " + e.getMessage());
+		}
 	}
 }

@@ -12,3 +12,4 @@ plugins {
 }
 
 include("bootstrap")
+include("core-ui")

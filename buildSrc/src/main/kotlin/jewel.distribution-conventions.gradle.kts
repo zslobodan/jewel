@@ -1,5 +1,6 @@
 package buildsrc.convention
 
+import org.panteleyev.jpackage.ImageType
 import java.util.*
 
 plugins {
@@ -19,6 +20,11 @@ val osDir = when {
 }
 
 //val iconDir = file("${project.rootDir}/buildSrc/src/main/resources/icons")
+//val currentIcon = when {
+//    os.contains("windows") -> "$iconDir/jewel.ico"
+//    os.contains("mac") -> "$iconDir/jewel.icns"
+//    else -> "$iconDir/jewel.png"
+//}
 
 tasks.register<Copy>("prepareInstallerFiles") {
 	from(tasks.jar)
@@ -27,73 +33,45 @@ tasks.register<Copy>("prepareInstallerFiles") {
 	dependsOn(tasks.jar)
 }
 
-//val currentIcon = when {
-//    os.contains("windows") -> "$iconDir/jewel.ico"
-//    os.contains("mac") -> "$iconDir/jewel.icns"
-//    else -> "$iconDir/jewel.png"
-//}
-
-tasks.register<Exec>("packageApp") {
+tasks.jpackage {
 	dependsOn("prepareInstallerFiles")
+
+	input = libsDir.absolutePath
+	destination = osDir.absolutePath
+	appName = "Jewel"
+	mainJar = tasks.jar.get().archiveFileName.get()
+	mainClass = "com.slobodanzivanovic.jewel.bootstrap.MainKt"
+	appVersion = "1.0.0"
+	copyright = "Copyright (C) 2024 Slobodan Zivanovic"
+//  licenseFile = "${project.rootDir}/LICENSE"
+//  icon = currentIcon
+
+	type = when {
+		os.contains("windows") -> ImageType.EXE
+		os.contains("mac") -> ImageType.DMG
+		else -> ImageType.DEB
+	}
+
+	windows {
+		winMenu = true
+		winShortcut = true
+	}
+
+	mac {
+		macPackageIdentifier = "com.slobodanzivanovic.jewel"
+		macPackageName = "Jewel"
+		macPackageSigningPrefix = "com.slobodanzivanovic"
+		javaOptions = listOf("-Xdock:name=Jewel")
+	}
+
+	linux {
+		linuxShortcut = true
+	}
+}
+
+tasks.register("packageApp") {
+	dependsOn("clean", "jpackage")
 	group = "application"
-
-	workingDir = project.projectDir
-
-	val jpackageCmd = "${System.getProperty("java.home")}/bin/jpackage"
-
-	doFirst {
-		osDir.mkdirs()
-	}
-
-	commandLine(
-		jpackageCmd,
-		"--input", libsDir.absolutePath,
-		"--dest", osDir.absolutePath,
-		"--name", "Jewel",
-		"--main-jar", tasks.jar.get().archiveFileName.get(),
-		"--main-class", "com.slobodanzivanovic.jewel.bootstrap.Main",
-		"--app-version", "1.0.0",
-		"--copyright", "Copyright (C) 2024 Slobodan Zivanovic",
-//		"--license-file", "${project.rootDir}/LICENSE",
-//		"--icon", currentIcon,
-		"--type", when {
-			os.contains("windows") -> "exe"
-			os.contains("mac") -> "dmg"
-			else -> "deb"
-		}
-	)
-
-	doFirst {
-		when {
-			os.contains("windows") -> {
-				commandLine.addAll(
-					listOf(
-						"--win-menu",
-						"--win-shortcut"
-					)
-				)
-			}
-
-			os.contains("mac") -> {
-				commandLine.addAll(
-					listOf(
-						"--mac-package-identifier", "com.slobodanzivanovic.jewel",
-						"--mac-package-name", "Jewel",
-						"--mac-package-signing-prefix", "com.slobodanzivanovic",
-						"--java-options", "-Xdock:name=Jewel"
-					)
-				)
-			}
-
-			else -> {
-				commandLine.addAll(
-					listOf(
-						"--linux-shortcut"
-					)
-				)
-			}
-		}
-	}
 }
 
 tasks.register<Delete>("cleanDistribution") {

@@ -3,6 +3,11 @@ plugins {
 	id("buildsrc.convention.jewel.distribution-conventions")
 }
 
+dependencies {
+	implementation(project(":core-ui"))
+}
+
 application {
-	mainClass.set("com.slobodanzivanovic.jewel.bootstrap.Main")
+	mainClass.set("com.slobodanzivanovic.jewel.bootstrap.MainKt")
+	applicationName = rootProject.name
 }

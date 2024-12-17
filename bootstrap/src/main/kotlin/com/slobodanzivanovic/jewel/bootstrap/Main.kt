@@ -17,12 +17,14 @@
 package com.slobodanzivanovic.jewel.bootstrap
 
 import com.slobodanzivanovic.jewel.coreui.EditorWindow
+import com.slobodanzivanovic.jewel.laf.UIPreferences
 import com.slobodanzivanovic.jewel.util.logging.Logger
 import com.slobodanzivanovic.jewel.util.platform.PlatformInfo
 import java.awt.Dimension
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.swing.JDialog
 import javax.swing.JFrame
 import javax.swing.SwingUtilities
 import javax.swing.WindowConstants
@@ -32,25 +34,32 @@ import javax.swing.WindowConstants
  */
 fun main() {
 
-	when {
-		PlatformInfo.IS_MAC -> {
-			println(PlatformInfo.getInstance().osName)
-		}
-
-		PlatformInfo.IS_WINDOWS -> {
-			println(PlatformInfo.getInstance().osName)
-		}
-
-		PlatformInfo.IS_LINUX -> {
-			println(PlatformInfo.getInstance().osName)
-		}
+	// NOTE: This is just for now, almost all of this should be moved to separate class init frame in laf package
+	if (PlatformInfo.IS_MAC) {
+		System.setProperty("apple.laf.useScreenMenuBar", "true")
+		System.setProperty("apple.awt.application.name", "Jewel")
+		System.setProperty("apple.awt.application.appearance", "system")
 	}
+
+	if (PlatformInfo.IS_LINUX) {
+		JFrame.setDefaultLookAndFeelDecorated(true)
+		JDialog.setDefaultLookAndFeelDecorated(true)
+	}
+
+	System.setProperty("flatlaf.uiScale", System.getProperty("sun.java2d.uiScale", "1"))
+	System.setProperty("swing.defaultlaf.useSystemScale", "true")
+
+	UIPreferences.init()
+	UIPreferences.initSystemScale()
 
 	PlatformInfo.getInstance().logSystemInfo()
 
 	SwingUtilities.invokeLater {
+		UIPreferences.setupLaf()
+
 		JFrame().apply {
 			createBufferStrategy(1)
+			jMenuBar = JewelMenuBar()
 			add(EditorWindow())
 			defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
 			isResizable = true
@@ -58,6 +67,7 @@ fun main() {
 			minimumSize = Dimension(800, 600)
 			pack()
 			setLocationRelativeTo(null)
+			UIPreferences.registerSystemScaleFactors(this)
 			isVisible = true
 		}
 	}

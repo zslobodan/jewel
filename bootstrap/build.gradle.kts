@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
 	implementation(project(":core-ui"))
+	implementation(project(":laf"))
 	implementation(project(":util"))
 }
 

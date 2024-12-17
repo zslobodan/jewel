@@ -30,7 +30,6 @@ import java.util.Objects;
 public class PlatformInfo {
 
 	private static final PlatformInfo INSTANCE = new PlatformInfo();
-	private static final Logger LOGGER;
 
 	public static final boolean IS_WINDOWS;
 	public static final boolean IS_MAC;
@@ -44,15 +43,6 @@ public class PlatformInfo {
 	private final int javaMajorVersion;
 
 	static {
-		Logger tempLogger;
-		try {
-			tempLogger = new Logger("");
-		} catch (IOException e) {
-			System.err.println("Failed to initialize logger: " + e.getMessage());
-			tempLogger = null;
-		}
-		LOGGER = tempLogger;
-
 		String osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
 		IS_WINDOWS = osName.contains("win");
 		IS_MAC = osName.contains("mac");
@@ -219,7 +209,8 @@ public class PlatformInfo {
 			sysLogger.info("Java Major Version: " + javaMajorVersion);
 			sysLogger.info("ARM64 Architecture: " + isAarch64());
 		} catch (IOException e) {
-			LOGGER.error("Failed to log system information: " + e.getMessage());
+			// TODO: in future probably should be moved in logger anyway
+			System.err.println("Failed to log system information: " + e.getMessage());
 		}
 	}
 }

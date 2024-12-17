@@ -19,6 +19,8 @@ package com.slobodanzivanovic.jewel.laf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.extras.FlatInspector;
+import com.formdev.flatlaf.extras.FlatUIDefaultsInspector;
 import com.slobodanzivanovic.jewel.util.platform.PlatformInfo;
 import com.slobodanzivanovic.jewel.util.prefs.XMLPreferences;
 
@@ -85,6 +87,9 @@ public class UIPreferences {
 				state.put(KEY_LAF, UIManager.getLookAndFeel().getClass().getName());
 			}
 		});
+
+		FlatInspector.install("ctrl shift alt X");
+		FlatUIDefaultsInspector.install("ctrl shift alt Y");
 	}
 
 	/**

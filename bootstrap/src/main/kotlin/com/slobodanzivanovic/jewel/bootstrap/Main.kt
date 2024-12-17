@@ -17,6 +17,7 @@
 package com.slobodanzivanovic.jewel.bootstrap
 
 import com.slobodanzivanovic.jewel.coreui.EditorWindow
+import com.slobodanzivanovic.jewel.laf.FontManager
 import com.slobodanzivanovic.jewel.laf.UIPreferences
 import com.slobodanzivanovic.jewel.util.logging.Logger
 import com.slobodanzivanovic.jewel.util.platform.PlatformInfo
@@ -55,6 +56,7 @@ fun main() {
 	PlatformInfo.getInstance().logSystemInfo()
 
 	SwingUtilities.invokeLater {
+		FontManager.setupFonts()
 		UIPreferences.setupLaf()
 
 		JFrame().apply {

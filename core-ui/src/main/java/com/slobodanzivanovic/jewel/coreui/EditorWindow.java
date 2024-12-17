@@ -16,6 +16,8 @@
 
 package com.slobodanzivanovic.jewel.coreui;
 
+import com.slobodanzivanovic.jewel.laf.FontManager;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -34,6 +36,7 @@ public class EditorWindow extends JPanel {
 		JTextArea textArea = new JTextArea();
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
+		textArea.setFont(FontManager.createEditorFont(0));
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		add(scrollPane, BorderLayout.CENTER);
 	}

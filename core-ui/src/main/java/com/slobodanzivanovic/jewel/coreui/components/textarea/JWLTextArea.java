@@ -16,6 +16,7 @@
 
 package com.slobodanzivanovic.jewel.coreui.components.textarea;
 
+import com.slobodanzivanovic.jewel.laf.UIEvents;
 import com.slobodanzivanovic.jewel.laf.UIPreferences;
 import com.slobodanzivanovic.jewel.util.platform.PlatformInfo;
 
@@ -33,16 +34,15 @@ import java.util.Stack;
 /**
  * @author Slobodan Zivanovic
  */
-public class JWLTextArea extends JTextArea {
+public class JWLTextArea extends JTextArea implements UIEvents.ThemeChangeListener {
 
 	private static final String[] BRACKETS = {"()", "[]", "{}"};
 	private final Stack<Integer> bracketStack = new Stack<>();
 	private boolean autoIndentEnabled = true;
 
-	private boolean highlightCurrentLine = true;
+	private final boolean highlightCurrentLine = true;
 	private Color currentLineColor = new Color(255, 255, 170);
-	private int currentCaretY;
-	private int previousCaretY;
+	private JWLLinePainter linePainter;
 
 	public JWLTextArea() {
 		initialize();
@@ -51,8 +51,6 @@ public class JWLTextArea extends JTextArea {
 	private void initialize() {
 		setTabSize(4);
 		disableEmptyBackspaceBeep();
-
-		previousCaretY = currentCaretY = getInsets().top;
 
 		// Custom caret (2px)
 		setCaret(new DefaultCaret() {
@@ -70,17 +68,16 @@ public class JWLTextArea extends JTextArea {
 			}
 		});
 
-		// Initial color based on theme
 		updateHighlightColorForTheme();
+		linePainter = new JWLLinePainter(this, currentLineColor);
 
-		// Listener for updating color when theme changes
-		UIManager.addPropertyChangeListener(e -> {
-			if ("lookAndFeel".equals(e.getPropertyName())) {
-				updateHighlightColorForTheme();
-			}
-		});
+		try {
+			getHighlighter().addHighlight(0, 0, linePainter);
+		} catch (BadLocationException ble) {
+			// Ignore
+		}
 
-		addCaretListener(e -> updateCurrentLineHighlight());
+		UIEvents.addThemeChangeListener(this);
 
 		addKeyListener(new KeyAdapter() {
 			@Override
@@ -95,7 +92,28 @@ public class JWLTextArea extends JTextArea {
 		});
 	}
 
-	// TODO: This is just for now some stuff dont work....
+	@Override
+	public void onThemeChanged() {
+		SwingUtilities.invokeLater(() -> {
+			updateHighlightColorForTheme();
+			if (highlightCurrentLine) {
+				try {
+					getHighlighter().removeAllHighlights();
+					getHighlighter().addHighlight(0, 0, linePainter);
+				} catch (BadLocationException ble) {
+					// Ignore
+				}
+			}
+			repaint();
+		});
+	}
+
+	@Override
+	public void removeNotify() {
+		UIEvents.removeThemeChangeListener(this);
+		super.removeNotify();
+	}
+
 	private void handleKeyPress(KeyEvent e) {
 		boolean isCommandKey = PlatformInfo.IS_MAC ? e.isMetaDown() : e.isControlDown();
 
@@ -202,7 +220,6 @@ public class JWLTextArea extends JTextArea {
 				insert(newLine.toString(), caretPos);
 				setCaretPosition(caretPos + newLine.length());
 			}
-
 		} catch (BadLocationException ex) {
 			UIManager.getLookAndFeel().provideErrorFeedback(this);
 		}
@@ -338,129 +355,18 @@ public class JWLTextArea extends JTextArea {
 		return highlightCurrentLine;
 	}
 
-	public void setHighlightCurrentLine(boolean highlight) {
-		if (highlight != highlightCurrentLine) {
-			highlightCurrentLine = highlight;
-			repaint();
-		}
-	}
-
-	public Color getCurrentLineColor() {
-		return currentLineColor;
+	public JWLLinePainter getLinePainter() {
+		return linePainter;
 	}
 
 	public void setCurrentLineColor(Color color) {
-		if (color != null && !color.equals(currentLineColor)) {
+		if (color != null) {
 			currentLineColor = color;
-			repaint();
-		}
-	}
-
-	private void updateHighlightColorForTheme() {
-		String currentLaf = UIPreferences.getState().get(UIPreferences.KEY_LAF, "");
-
-		if (currentLaf.contains("FlatDarkLaf")) {
-			setCurrentLineColor(new Color(80, 80, 80));
-		} else {
-			setCurrentLineColor(new Color(230, 230, 230));
-		}
-	}
-
-	@Override
-	protected void paintComponent(Graphics g) {
-		// Create a copy of the graphics context to avoid modifying the original
-		Graphics2D g2d = (Graphics2D) g.create();
-
-		// FIXME: There is bug with selection and current line highlight
-
-		try {
-			Rectangle clip = g2d.getClipBounds();
-
-			// Store the current caret state
-			boolean caretVisible = getCaret().isVisible();
-			// Temporarily hide caret for base painting
-			getCaret().setVisible(false);
-
-			// Paint the base component first WITHOUT the current line
-			super.paintComponent(g2d);
-
-			// Only paint the highlight if enabled
-			if (highlightCurrentLine) {
-				int caretPos = getCaretPosition();
-				Rectangle2D rect = modelToView2D(caretPos);
-
-				if (rect != null) {
-					// Get the current line text before we paint the highlight
-					int line = getLineOfOffset(caretPos);
-					int start = getLineStartOffset(line);
-					int end = getLineEndOffset(line);
-					String text = getText(start, end - start);
-					FontMetrics fm = g2d.getFontMetrics();
-
-					// Paint the highlight
-					g2d.setColor(currentLineColor);
-					g2d.fillRect(clip.x, (int) rect.getY(), clip.width, (int) rect.getHeight());
-
-					// Paint the text for this line again over the highlight
-					g2d.setColor(getForeground());
-					g2d.drawString(text, getInsets().left, (int) rect.getY() + fm.getAscent());
-				}
+			if (linePainter != null) {
+				linePainter.setColor(color);
+				repaint();
 			}
-
-			// Restore caret and paint it
-			getCaret().setVisible(caretVisible);
-			paintCaret(g2d);
-
-		} catch (BadLocationException e) {
-			// Ignore
-		} finally {
-			g2d.dispose();
 		}
-	}
-
-	private void paintCaret(Graphics g) {
-		if (getCaret() != null && getCaret().isVisible()) {
-			getCaret().paint(g);
-		}
-	}
-
-	protected void updateCurrentLineHighlight() {
-		try {
-			int offset = getCaretPosition();
-			Rectangle2D rect = modelToView2D(offset);
-			if (rect != null) {
-				currentCaretY = (int) rect.getY();
-				if (currentCaretY != previousCaretY) {
-					// Repaint the entire visible area to avoid artifacts
-					Rectangle visible = getVisibleRect();
-					repaint(visible);
-					previousCaretY = currentCaretY;
-				}
-			}
-		} catch (BadLocationException e) {
-			// Ignore
-		}
-	}
-
-	// Override this to ensure proper repainting during selection
-	@Override
-	public void paint(Graphics g) {
-		super.paint(g);
-		// Force immediate validation of the component
-		validateContent();
-	}
-
-	private void validateContent() {
-		revalidate();
-		// Request focus if we dont have it
-		if (!hasFocus() && isRequestFocusEnabled()) {
-			requestFocusInWindow();
-		}
-	}
-
-	private int getLineHeight() {
-		FontMetrics fm = getFontMetrics(getFont());
-		return fm.getHeight();
 	}
 
 	public void setAutoIndentEnabled(boolean enabled) {
@@ -469,6 +375,16 @@ public class JWLTextArea extends JTextArea {
 
 	public boolean isAutoIndentEnabled() {
 		return autoIndentEnabled;
+	}
+
+	private void updateHighlightColorForTheme() {
+		String currentLaf = UIPreferences.getState().get(UIPreferences.KEY_LAF, "");
+
+		if (currentLaf.contains("FlatDarkLaf")) {
+			setCurrentLineColor(new Color(65, 68, 70));
+		} else {
+			setCurrentLineColor(new Color(232, 232, 232));
+		}
 	}
 
 	/**

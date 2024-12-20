@@ -47,20 +47,11 @@ public class EditorWindow extends JPanel {
 
 		area.setFont(FontManager.createEditorFont(0));
 		area.setTabSize(4);
-		area.setHighlightCurrentLine(true);
 
 		area.setLineWrap(false);
 		area.setWrapStyleWord(false);
 
 		area.setAutoIndentEnabled(true);
-
-		area.setBackground(UIManager.getColor("TextArea.background"));
-		area.setForeground(UIManager.getColor("TextArea.foreground"));
-		area.setCaretColor(UIManager.getColor("TextArea.caretColor"));
-		area.setSelectionColor(UIManager.getColor("TextArea.selectionBackground"));
-		area.setSelectedTextColor(UIManager.getColor("TextArea.selectionForeground"));
-
-		area.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
 
 		return area;
 	}

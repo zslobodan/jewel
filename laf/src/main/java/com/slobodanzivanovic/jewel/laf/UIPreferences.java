@@ -185,6 +185,8 @@ public class UIPreferences {
 
 			FlatLaf.updateUI();
 
+			UIEvents.fireThemeChanged();
+
 			state.put(KEY_LAF, UIManager.getLookAndFeel().getClass().getName());
 
 		} catch (Exception ex) {
